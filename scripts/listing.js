@@ -4,11 +4,14 @@ const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
 let currentPageUrl = apiUrl;
 
-// Función para capitalizar palabras
 function capitalizeWords(str) {
     return str.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
+}
+
+function redirectToSearch(name) {
+    window.location.href = `https://pokemon.fandom.com/es/wiki/${name}`;
 }
 
 async function fetchPokemonList(url) {
@@ -24,8 +27,15 @@ async function fetchPokemonList(url) {
 
             const name = document.createElement('h3');
             name.textContent = capitalizeWords(pokemon.name.replace('-', ' '));
+            name.addEventListener('click', () => {
+                redirectToSearch(pokemon.name);
+            });
+
             const image = document.createElement('img');
             image.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.url.split('/')[6]}.png`;
+            image.addEventListener('click', () => {
+                redirectToSearch(pokemon.name);
+            });
 
             pokemonCard.appendChild(name);
             pokemonCard.appendChild(image);

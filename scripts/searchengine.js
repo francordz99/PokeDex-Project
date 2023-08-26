@@ -1,12 +1,14 @@
-// Obtén los elementos HTML que necesitas
+
 const searchInput = document.getElementById("search-input");
 const searchButton = document.getElementById("search-button");
+const suggestionsList = document.getElementById("suggestions-list");
 const pokemonSearchDiv = document.querySelector(".pokemon-search");
 
-// Agregar evento para buscar al presionar Enter
 searchInput.addEventListener("keyup", (event) => {
     if (event.key === "Enter") {
         searchButton.click();
+    } else {
+        showSuggestions(searchInput.value);
     }
 });
 
@@ -23,6 +25,40 @@ searchButton.addEventListener("click", () => {
             console.error("Error fetching Pokemon data:", error);
             displayErrorMessage("Pokemon no encontrado");
         });
+});
+
+function showSuggestions(prefix) {
+    if (!prefix || prefix.length < 2) {
+        suggestionsList.innerHTML = "";
+        return;
+    }
+
+    const apiUrl = `https://pokeapi.co/api/v2/pokemon?limit=2000&offset=0`;
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            const matchingPokemons = data.results.filter(pokemon =>
+                pokemon.name.startsWith(prefix) ||
+                pokemon.name.includes(prefix)
+            ).slice(0, 10);
+            displaySuggestions(matchingPokemons);
+        })
+        .catch(error => {
+            console.error("Error fetching Pokemon suggestions:", error);
+        });
+}
+
+function displaySuggestions(pokemons) {
+    suggestionsList.innerHTML = pokemons
+        .map(pokemon => `<li>${capitalizeWords(pokemon.name)}</li>`)
+        .join("");
+}
+
+suggestionsList.addEventListener("click", (event) => {
+    const selectedPokemon = event.target.textContent;
+    searchInput.value = selectedPokemon;
+    suggestionsList.innerHTML = "";
 });
 
 function capitalizeAbilityName(name) {
